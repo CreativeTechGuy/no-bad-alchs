@@ -1,0 +1,50 @@
+package com.creativetechguy;
+
+import net.runelite.client.config.Config;
+import net.runelite.client.config.ConfigGroup;
+import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.Range;
+
+@ConfigGroup("no-bad-alchs")
+public interface NoBadAlchsConfig extends Config {
+    @ConfigItem(
+            keyName = "minAlchRatio",
+            name = "Min Alch Ratio",
+            description = "Multiplied by the item's GE value. If the alch value is lower than the result, the item cannot be alched.",
+            position = 1
+    )
+    default double minAlchRatio() {
+        return 0.98;
+    }
+
+    @Range(min = Integer.MIN_VALUE)
+    @ConfigItem(
+            keyName = "alchValueMargin",
+            name = "Alch Value Margin",
+            description = "Added to the GE value.",
+            position = 2
+    )
+    default int alchValueMargin() {
+        return 0;
+    }
+
+    @ConfigItem(
+            keyName = "includeRuneCost",
+            name = "Include Rune Cost",
+            description = "Automatically adds the cost of 1 nature and 5 fire runes to the GE value.",
+            position = 3
+    )
+    default boolean includeRuneCost() {
+        return true;
+    }
+
+    @ConfigItem(
+            keyName = "hideUntradeables",
+            name = "Hide Untradeables",
+            description = "Items without GE value will be always hidden.",
+            position = 4
+    )
+    default boolean hideUntradeables() {
+        return true;
+    }
+}
