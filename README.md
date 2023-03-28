@@ -18,3 +18,9 @@ Prevents casting alchemy on items which give less than the GE value based on con
 * Hide Untradeables - Items without GE value will be always hidden.
 
 Note: GE value automatically incorporates the GE tax deduction.
+
+## Known issues
+
+* While the Explorer Ring Alchemy menu is active, opening other interfaces like shops or banks will cause the hidden
+  items to reappear in the alch tab.
+    * Switching to another inventory tab and back to your Magic tab will fix it.
