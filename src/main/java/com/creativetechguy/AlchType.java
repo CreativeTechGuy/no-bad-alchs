@@ -3,5 +3,7 @@ package com.creativetechguy;
 public enum AlchType {
     None,
     High,
-    Low
+    Low,
+    RingHigh,
+    RingLow
 }

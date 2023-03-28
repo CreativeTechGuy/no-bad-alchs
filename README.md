@@ -16,3 +16,5 @@ Prevents casting alchemy on items which give less than the GE value based on con
     * Example: -250 means the alch value can be at most -250 coins less than the GE value
 * Include Rune Cost - Automatically adds the cost of 1 nature and 5 fire runes to the GE value.
 * Hide Untradeables - Items without GE value will be always hidden.
+
+Note: GE value automatically incorporates the GE tax deduction.

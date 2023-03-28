@@ -5,8 +5,10 @@ import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.Range;
 
-@ConfigGroup("no-bad-alchs")
+@ConfigGroup(NoBadAlchsConfig.GROUP_NAME)
 public interface NoBadAlchsConfig extends Config {
+    static String GROUP_NAME = "no-bad-alchs";
+
     @ConfigItem(
             keyName = "minAlchRatio",
             name = "Min Alch Ratio",
