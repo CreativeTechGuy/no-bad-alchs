@@ -24,7 +24,7 @@ dependencies {
 }
 
 group = 'com.creativetechguy'
-version = '0.8.0'
+version = '0.8.1'
 sourceCompatibility = '1.8'
 
 tasks.withType(JavaCompile) {

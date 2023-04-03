@@ -19,6 +19,11 @@ Prevents casting alchemy on items which give less than the GE value based on con
 
 Note: GE value automatically incorporates the GE tax deduction.
 
+## Version History
+
+* 0.8.1 - Fixed bug where all spells cast would hide inventory
+* 0.8.0 - Initial RuneLite Release
+
 ## Known issues
 
 * While the Explorer Ring Alchemy menu is active, opening other interfaces like shops or banks will cause the hidden

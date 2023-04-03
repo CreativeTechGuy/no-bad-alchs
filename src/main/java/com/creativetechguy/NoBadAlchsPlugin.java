@@ -68,7 +68,7 @@ public class NoBadAlchsPlugin extends Plugin {
         if (menuOption.equals("Cast")) {
             if (Objects.equals(menuTarget, MagicAction.LOW_LEVEL_ALCHEMY.getName())) {
                 alchType = AlchType.Low;
-            } else {
+            } else if (Objects.equals(menuTarget, MagicAction.HIGH_LEVEL_ALCHEMY.getName())) {
                 alchType = AlchType.High;
             }
         } else if (menuOption.equals("Magic")) {
@@ -195,6 +195,9 @@ public class NoBadAlchsPlugin extends Plugin {
     }
 
     private void showHiddenItems() {
+        if (hiddenItems.isEmpty()) {
+            return;
+        }
         queueSingleTask(TaskName.ShowHiddenItems, this::_showHiddenItemsTask);
     }
 
