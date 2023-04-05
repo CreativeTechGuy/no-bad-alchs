@@ -16,7 +16,7 @@ public interface NoBadAlchsConfig extends Config {
             position = 1
     )
     default double minAlchRatio() {
-        return 0.98;
+        return 0.99;
     }
 
     @Range(min = Integer.MIN_VALUE)

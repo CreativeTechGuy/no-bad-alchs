@@ -65,21 +65,17 @@ public class NoBadAlchsPlugin extends Plugin {
     public void onMenuOptionClicked(MenuOptionClicked event) {
         String menuTarget = Text.removeTags(event.getMenuTarget());
         String menuOption = Text.removeTags(event.getMenuOption());
-        if (menuOption.equals("Cast")) {
-            if (Objects.equals(menuTarget, MagicAction.LOW_LEVEL_ALCHEMY.getName())) {
-                alchType = AlchType.Low;
-            } else if (Objects.equals(menuTarget, MagicAction.HIGH_LEVEL_ALCHEMY.getName())) {
-                alchType = AlchType.High;
+        if (menuOption.equals("Cast") && Objects.equals(menuTarget, MagicAction.LOW_LEVEL_ALCHEMY.getName())) {
+            alchType = AlchType.Low;
+        } else if (menuOption.equals("Cast") && Objects.equals(menuTarget, MagicAction.HIGH_LEVEL_ALCHEMY.getName())) {
+            alchType = AlchType.High;
+        } else if (menuOption.equals("Magic") && isUsingExplorerRingAlch()) {
+            if (client.getVarbitValue(Varbits.EXPLORER_RING_ALCHTYPE) == 0) {
+                alchType = AlchType.RingLow;
+            } else {
+                alchType = AlchType.RingHigh;
             }
-        } else if (menuOption.equals("Magic")) {
-            if (isUsingExplorerRingAlch()) {
-                if (client.getVarbitValue(Varbits.EXPLORER_RING_ALCHTYPE) == 0) {
-                    alchType = AlchType.RingLow;
-                } else {
-                    alchType = AlchType.RingHigh;
-                }
-                hideItems();
-            }
+            hideItems();
         } else if (!isUsingExplorerRingAlch()) {
             alchType = AlchType.None;
         }

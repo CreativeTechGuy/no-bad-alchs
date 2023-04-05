@@ -6,7 +6,7 @@ Prevents casting alchemy on items which give less than the GE value based on con
 
 ## Config Options
 
-* Min Alch Ratio - A number (default 0.98) to be multiplied by the item's GE value. If the alch value is lower than the
+* Min Alch Ratio - A number (default 0.99) to be multiplied by the item's GE value. If the alch value is lower than the
   result, the
   item cannot be alched and will be hidden when alching.
     * Example: 1.5 means you only want to alch items which have an alch value 150% of the GE value.
@@ -21,6 +21,7 @@ Note: GE value automatically incorporates the GE tax deduction.
 
 ## Version History
 
+* 0.9.0 - Immediately re-show items as soon as alch is cast
 * 0.8.1 - Fixed bug where all spells cast would hide inventory
 * 0.8.0 - Initial RuneLite Release
 
