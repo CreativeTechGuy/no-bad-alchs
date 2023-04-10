@@ -17,7 +17,6 @@ import net.runelite.client.plugins.skillcalculator.skills.MagicAction;
 import net.runelite.client.util.Text;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
 
@@ -38,7 +37,7 @@ public class NoBadAlchsPlugin extends Plugin {
     private ItemManager itemManager;
 
     AlchType alchType = AlchType.None;
-    ArrayList<Widget> hiddenItems = new ArrayList<>();
+    HashSet<Widget> hiddenItems = new HashSet<>();
     HashSet<TaskName> tasksQueued = new HashSet<>();
 
     @Provides
@@ -139,6 +138,14 @@ public class NoBadAlchsPlugin extends Plugin {
         }
     }
 
+    @Subscribe
+    private void onItemContainerChanged(ItemContainerChanged event) {
+        ItemContainer container = event.getItemContainer();
+        if (container.getId() == InventoryID.INVENTORY.getId() && isUsingExplorerRingAlch()) {
+            hideItems();
+        }
+    }
+
     private void hideItems() {
         queueSingleTask(TaskName.HideItems, this::_hideItemsTask);
     }
@@ -165,11 +172,14 @@ public class NoBadAlchsPlugin extends Plugin {
         double minAlchPriceRatio = config.minAlchRatio();
         double alchPriceMargin = config.alchValueMargin();
         double runeCost = config.includeRuneCost() ? itemManager.getItemPrice(ItemID.FIRE_RUNE) * 5 + itemManager.getItemPrice(ItemID.NATURE_RUNE) : 0;
-        if (isUsingExplorerRingAlch()) {
+        if (isUsingExplorerRingAlch() || isAlchCastPoweredByExplorerRing()) {
             runeCost = 0;
         }
         for (Widget inventoryItem : inventoryItems) {
             if (inventoryItem.getItemId() == NullItemID.NULL_6512) {
+                continue;
+            }
+            if (inventoryItem.isHidden()) {
                 continue;
             }
             int itemPrice = itemManager.getItemComposition(inventoryItem.getItemId()).getPrice();
@@ -202,10 +212,8 @@ public class NoBadAlchsPlugin extends Plugin {
             return;
         }
 
-        for (int i = hiddenItems.size() - 1; i >= 0; i--) {
-            Widget inventoryItem = hiddenItems.get(i);
+        for (Widget inventoryItem : hiddenItems) {
             inventoryItem.setHidden(false);
-            hiddenItems.remove(i);
         }
     }
 
@@ -227,6 +235,23 @@ public class NoBadAlchsPlugin extends Plugin {
             task.run();
         });
         tasksQueued.add(taskName);
+    }
+
+    private boolean isAlchCastPoweredByExplorerRing() {
+        // We are naively assuming that if there's an explorer ring in the inventory, it still has charges. I don't want to track charges for this edge case.
+        ItemContainer inventory = client.getItemContainer(InventoryID.INVENTORY);
+        if (containsExplorerRing(inventory)) {
+            return true;
+        }
+        ItemContainer equipment = client.getItemContainer(InventoryID.EQUIPMENT);
+        if (containsExplorerRing(equipment)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean containsExplorerRing(ItemContainer container) {
+        return container.contains(ItemID.EXPLORERS_RING_1) || container.contains(ItemID.EXPLORERS_RING_2) || container.contains(ItemID.EXPLORERS_RING_3) || container.contains(ItemID.EXPLORERS_RING_4);
     }
 
     private boolean isAlching() {

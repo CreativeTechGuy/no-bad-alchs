@@ -21,12 +21,11 @@ Note: GE value automatically incorporates the GE tax deduction.
 
 ## Version History
 
+* 1.0.0 - Now works with Explorer Ring Alch in all cases.
 * 0.9.0 - Immediately re-show items as soon as alch is cast
 * 0.8.1 - Fixed bug where all spells cast would hide inventory
 * 0.8.0 - Initial RuneLite Release
 
 ## Known issues
 
-* While the Explorer Ring Alchemy menu is active, opening other interfaces like shops or banks will cause the hidden
-  items to reappear in the alch tab.
-    * Switching to another inventory tab and back to your Magic tab will fix it.
+* Currently none
