@@ -28,4 +28,5 @@ Note: GE value automatically incorporates the GE tax deduction.
 
 ## Known issues
 
-* Currently none
+* This plugin is currently incompatible with Instant Inventory (or any other plugin which forcefully overrides items'
+  visibility in the inventory) [#1](https://github.com/CreativeTechGuy/no-bad-alchs/issues/1)
