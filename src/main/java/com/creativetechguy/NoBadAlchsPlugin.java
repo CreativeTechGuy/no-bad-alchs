@@ -193,6 +193,9 @@ public class NoBadAlchsPlugin extends Plugin {
             if (alchPrice <= minAlchPrice) {
                 shouldHide = true;
             }
+            if (alchPrice < config.minAlchValue()) {
+                shouldHide = true;
+            }
             if (shouldHide) {
                 inventoryItem.setHidden(true);
                 hiddenItems.add(inventoryItem);

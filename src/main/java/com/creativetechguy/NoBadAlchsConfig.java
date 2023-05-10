@@ -30,11 +30,22 @@ public interface NoBadAlchsConfig extends Config {
         return 0;
     }
 
+    @Range(min = 0)
+    @ConfigItem(
+            keyName = "minAlchValue",
+            name = "Min Alch Value",
+            description = "Hide items with alch values below this",
+            position = 3
+    )
+    default int minAlchValue() {
+        return 0;
+    }
+
     @ConfigItem(
             keyName = "includeRuneCost",
             name = "Include Rune Cost",
             description = "Automatically adds the cost of 1 nature and 5 fire runes to the GE value.",
-            position = 3
+            position = 4
     )
     default boolean includeRuneCost() {
         return true;
@@ -44,7 +55,7 @@ public interface NoBadAlchsConfig extends Config {
             keyName = "hideUntradeables",
             name = "Hide Untradeables",
             description = "Items without GE value will be always hidden.",
-            position = 4
+            position = 5
     )
     default boolean hideUntradeables() {
         return true;
