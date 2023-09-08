@@ -22,6 +22,7 @@ Note: GE value automatically incorporates the GE tax deduction.
 
 ## Version History
 
+* 1.1.1 - Fixed rare error
 * 1.1.0 - Add config for minimum alch value
 * 1.0.0 - Now works with Explorer Ring Alch in all cases.
 * 0.9.0 - Immediately re-show items as soon as alch is cast
@@ -30,5 +31,4 @@ Note: GE value automatically incorporates the GE tax deduction.
 
 ## Known issues
 
-* This plugin is currently incompatible with Instant Inventory (or any other plugin which forcefully overrides items'
-  visibility in the inventory) [#1](https://github.com/CreativeTechGuy/no-bad-alchs/issues/1)
+* None currently!
