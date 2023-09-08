@@ -16,6 +16,7 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.skillcalculator.skills.MagicAction;
 import net.runelite.client.util.Text;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Objects;
@@ -253,8 +254,12 @@ public class NoBadAlchsPlugin extends Plugin {
         return false;
     }
 
-    private boolean containsExplorerRing(ItemContainer container) {
-        return container.contains(ItemID.EXPLORERS_RING_1) || container.contains(ItemID.EXPLORERS_RING_2) || container.contains(ItemID.EXPLORERS_RING_3) || container.contains(ItemID.EXPLORERS_RING_4);
+    private boolean containsExplorerRing(@Nullable ItemContainer container) {
+        if (container == null) {
+            return false;
+        }
+        return container.contains(ItemID.EXPLORERS_RING_1) || container.contains(ItemID.EXPLORERS_RING_2) || container.contains(
+                ItemID.EXPLORERS_RING_3) || container.contains(ItemID.EXPLORERS_RING_4);
     }
 
     private boolean isAlching() {
