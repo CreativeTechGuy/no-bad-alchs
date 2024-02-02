@@ -18,7 +18,9 @@ import net.runelite.client.util.Text;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -40,6 +42,14 @@ public class NoBadAlchsPlugin extends Plugin {
     AlchType alchType = AlchType.None;
     HashSet<Widget> hiddenItems = new HashSet<>();
     HashSet<TaskName> tasksQueued = new HashSet<>();
+    List<Integer> excludedItems = Arrays.asList(
+            NullItemID.NULL_6512,
+            ItemID.LEATHER_BOOTS_6893,
+            ItemID.ADAMANT_KITESHIELD_6894,
+            ItemID.ADAMANT_MED_HELM_6895,
+            ItemID.EMERALD_6896,
+            ItemID.RUNE_LONGSWORD_6897
+    );
 
     @Provides
     NoBadAlchsConfig provideConfig(ConfigManager configManager) {
@@ -172,12 +182,13 @@ public class NoBadAlchsPlugin extends Plugin {
 
         double minAlchPriceRatio = config.minAlchRatio();
         double alchPriceMargin = config.alchValueMargin();
-        double runeCost = config.includeRuneCost() ? itemManager.getItemPrice(ItemID.FIRE_RUNE) * 5 + itemManager.getItemPrice(ItemID.NATURE_RUNE) : 0;
+        double runeCost = config.includeRuneCost() ? itemManager.getItemPrice(ItemID.FIRE_RUNE) * 5 + itemManager.getItemPrice(
+                ItemID.NATURE_RUNE) : 0;
         if (isUsingExplorerRingAlch() || isAlchCastPoweredByExplorerRing()) {
             runeCost = 0;
         }
         for (Widget inventoryItem : inventoryItems) {
-            if (inventoryItem.getItemId() == NullItemID.NULL_6512) {
+            if (excludedItems.contains(inventoryItem.getItemId())) {
                 continue;
             }
             if (inventoryItem.isHidden()) {
