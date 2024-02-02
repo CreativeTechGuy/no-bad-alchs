@@ -4,8 +4,9 @@ import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.*;
+import net.runelite.api.widgets.ComponentID;
+import net.runelite.api.widgets.InterfaceID;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -107,7 +108,7 @@ public class NoBadAlchsPlugin extends Plugin {
 
     @Subscribe
     private void onWidgetLoaded(WidgetLoaded widget) {
-        if (widget.getGroupId() == WidgetInfo.EXPLORERS_RING_ALCH_INVENTORY.getGroupId()) {
+        if (widget.getGroupId() == InterfaceID.EXPLORERS_RING) {
             if (client.getVarbitValue(Varbits.EXPLORER_RING_ALCHTYPE) == 0) {
                 alchType = AlchType.RingLow;
             } else {
@@ -143,7 +144,7 @@ public class NoBadAlchsPlugin extends Plugin {
 
     @Subscribe
     private void onWidgetClosed(WidgetClosed widget) {
-        if (widget.getGroupId() == WidgetInfo.EXPLORERS_RING_ALCH_INVENTORY.getGroupId()) {
+        if (widget.getGroupId() == InterfaceID.EXPLORERS_RING) {
             alchType = AlchType.None;
             showHiddenItems();
         }
@@ -164,13 +165,13 @@ public class NoBadAlchsPlugin extends Plugin {
     private void _hideItemsTask() {
         Widget[] inventoryItems;
         if (isUsingExplorerRingAlch()) {
-            Widget alchInventory = client.getWidget(WidgetInfo.EXPLORERS_RING_ALCH_INVENTORY);
+            Widget alchInventory = client.getWidget(ComponentID.EXPLORERS_RING_INVENTORY);
             if (alchInventory == null) {
                 return;
             }
             inventoryItems = alchInventory.getChildren();
         } else {
-            Widget inventory = client.getWidget(WidgetInfo.INVENTORY);
+            Widget inventory = client.getWidget(ComponentID.INVENTORY_CONTAINER);
             if (inventory == null) {
                 return;
             }
