@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @PluginDescriptor(
@@ -76,11 +75,11 @@ public class NoBadAlchsPlugin extends Plugin {
     public void onMenuOptionClicked(MenuOptionClicked event) {
         String menuTarget = Text.removeTags(event.getMenuTarget());
         String menuOption = Text.removeTags(event.getMenuOption());
-        if (menuOption.equals("Cast") && Objects.equals(menuTarget, MagicAction.LOW_LEVEL_ALCHEMY.getName())) {
+        if (menuOption.contains("Cast") && menuTarget.contains(MagicAction.LOW_LEVEL_ALCHEMY.getName())) {
             alchType = AlchType.Low;
-        } else if (menuOption.equals("Cast") && Objects.equals(menuTarget, MagicAction.HIGH_LEVEL_ALCHEMY.getName())) {
+        } else if (menuOption.contains("Cast") && menuTarget.contains(MagicAction.HIGH_LEVEL_ALCHEMY.getName())) {
             alchType = AlchType.High;
-        } else if (menuOption.equals("Magic") && isUsingExplorerRingAlch()) {
+        } else if (menuOption.contains("Magic") && isUsingExplorerRingAlch()) {
             if (client.getVarbitValue(Varbits.EXPLORER_RING_ALCHTYPE) == 0) {
                 alchType = AlchType.RingLow;
             } else {

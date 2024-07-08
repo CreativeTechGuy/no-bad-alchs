@@ -22,6 +22,8 @@ Note: GE value automatically incorporates the GE tax deduction.
 
 ## Version History
 
+* 1.1.3 - Check names of menu items loosely to increase compatibility with other plugins which change menu item names
+* 1.1.2 - Exclude Mage Training Arena items
 * 1.1.1 - Fixed rare error
 * 1.1.0 - Add config for minimum alch value
 * 1.0.0 - Now works with Explorer Ring Alch in all cases.
