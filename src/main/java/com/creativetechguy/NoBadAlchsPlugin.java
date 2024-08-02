@@ -75,9 +75,11 @@ public class NoBadAlchsPlugin extends Plugin {
     public void onMenuOptionClicked(MenuOptionClicked event) {
         String menuTarget = Text.removeTags(event.getMenuTarget());
         String menuOption = Text.removeTags(event.getMenuOption());
-        if (menuOption.contains("Cast") && menuTarget.contains(MagicAction.LOW_LEVEL_ALCHEMY.getName())) {
+        if (menuOption.contains("Cast") && menuTarget.contains(MagicAction.LOW_LEVEL_ALCHEMY.getName()) && !menuTarget.contains(
+                "->")) {
             alchType = AlchType.Low;
-        } else if (menuOption.contains("Cast") && menuTarget.contains(MagicAction.HIGH_LEVEL_ALCHEMY.getName())) {
+        } else if (menuOption.contains("Cast") && menuTarget.contains(MagicAction.HIGH_LEVEL_ALCHEMY.getName()) && !menuTarget.contains(
+                "->")) {
             alchType = AlchType.High;
         } else if (menuOption.contains("Magic") && isUsingExplorerRingAlch()) {
             if (client.getVarbitValue(Varbits.EXPLORER_RING_ALCHTYPE) == 0) {

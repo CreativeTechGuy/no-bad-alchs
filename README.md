@@ -22,6 +22,7 @@ Note: GE value automatically incorporates the GE tax deduction.
 
 ## Version History
 
+* 1.1.4 - Fix keyboard support for swapping to inventory
 * 1.1.3 - Check names of menu items loosely to increase compatibility with other plugins which change menu item names
 * 1.1.2 - Exclude Mage Training Arena items
 * 1.1.1 - Fixed rare error
