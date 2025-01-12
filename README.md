@@ -34,4 +34,5 @@ Note: GE value automatically incorporates the GE tax deduction.
 
 ## Known issues
 
-* None currently!
+* Doesn't work correctly if [Normal Ancient Teleports](https://runelite.net/plugin-hub/show/normal-ancient-teleports) plugin is enabled.
+  * Disabling the `Normal Ancient Teleports` plugin fixes the `No Bad Alchs` behaviour.
