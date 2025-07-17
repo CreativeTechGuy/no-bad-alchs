@@ -200,8 +200,9 @@ public class NoBadAlchsPlugin extends Plugin {
             int alchPrice = (alchType == AlchType.Low || alchType == AlchType.RingLow) ? (int) (itemPrice * 0.4) : (int) (itemPrice * 0.6);
             int geValue = (int) (itemManager.getItemPrice(inventoryItem.getItemId()) * 0.99); // Account for GE tax
             int minAlchPrice = (int) (geValue * minAlchPriceRatio + alchPriceMargin + runeCost);
+            boolean untradeable = !(itemManager.getItemComposition(inventoryItem.getItemId()).isTradeable());
             boolean shouldHide = false;
-            if (geValue == 0 && config.hideUntradeables()) {
+            if (untradeable && config.hideUntradeables()) {
                 shouldHide = true;
             }
             if (alchPrice <= minAlchPrice) {
