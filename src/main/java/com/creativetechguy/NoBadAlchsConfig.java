@@ -60,4 +60,16 @@ public interface NoBadAlchsConfig extends Config {
     default boolean hideUntradeables() {
         return true;
     }
+
+    @ConfigItem(
+            keyName = "whitelistedItems",
+            name = "Whitelisted items",
+            description = "Any items you still want to alch, put them here. Format: item1, item2, item3",
+            position = 6
+    )
+    default String getWhitelistedItems()
+    {
+        return "";
+    }
+
 }

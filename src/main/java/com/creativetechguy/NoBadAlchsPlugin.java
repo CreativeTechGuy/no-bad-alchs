@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
 @PluginDescriptor(
@@ -50,6 +51,7 @@ public class NoBadAlchsPlugin extends Plugin {
             ItemID.EMERALD_6896,
             ItemID.RUNE_LONGSWORD_6897
     );
+    private List<String> Whitelist = new CopyOnWriteArrayList<>();
 
     @Provides
     NoBadAlchsConfig provideConfig(ConfigManager configManager) {
@@ -57,8 +59,16 @@ public class NoBadAlchsPlugin extends Plugin {
     }
 
     @Override
+    protected void startUp()
+    {
+        resetWhitelist();
+    }
+
+    @Override
     protected void shutDown() throws Exception {
         showHiddenItems();
+        Whitelist.clear();
+        Whitelist = null;
     }
 
     @Subscribe
@@ -66,6 +76,7 @@ public class NoBadAlchsPlugin extends Plugin {
         if (!event.getGroup().equals(NoBadAlchsConfig.GROUP_NAME)) {
             return;
         }
+        resetWhitelist();
         if (isAlching()) {
             resetHiddenItems();
         }
@@ -201,6 +212,7 @@ public class NoBadAlchsPlugin extends Plugin {
             int geValue = (int) (itemManager.getItemPrice(inventoryItem.getItemId()) * 0.98); // Account for GE tax
             int minAlchPrice = (int) (geValue * minAlchPriceRatio + alchPriceMargin + runeCost);
             boolean untradeable = !(itemManager.getItemComposition(inventoryItem.getItemId()).isTradeable());
+            String name = Text.removeTags(itemManager.getItemComposition(inventoryItem.getItemId()).getName()).toLowerCase();
             boolean shouldHide = false;
             if (untradeable && config.hideUntradeables()) {
                 shouldHide = true;
@@ -210,6 +222,9 @@ public class NoBadAlchsPlugin extends Plugin {
             }
             if (alchPrice < config.minAlchValue()) {
                 shouldHide = true;
+            }
+            if(Whitelist.contains(name)){
+                shouldHide = false;
             }
             if (shouldHide) {
                 inventoryItem.setHidden(true);
@@ -234,7 +249,9 @@ public class NoBadAlchsPlugin extends Plugin {
             inventoryItem.setHidden(false);
         }
     }
-
+    private void resetWhitelist(){
+        Whitelist = Text.fromCSV(config.getWhitelistedItems().toLowerCase());
+    }
     private void resetHiddenItems() {
         queueSingleTask(TaskName.ResetHiddenItems, this::_resetHiddenItemsTask);
     }
