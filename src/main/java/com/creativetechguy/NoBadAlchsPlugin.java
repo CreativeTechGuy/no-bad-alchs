@@ -12,6 +12,7 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.game.ItemVariationMapping;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.skillcalculator.skills.MagicAction;
@@ -52,6 +53,7 @@ public class NoBadAlchsPlugin extends Plugin {
             ItemID.RUNE_LONGSWORD_6897
     );
     private List<String> Whitelist = new CopyOnWriteArrayList<>();
+    private List<String> Blacklist = new CopyOnWriteArrayList<>();
 
     @Provides
     NoBadAlchsConfig provideConfig(ConfigManager configManager) {
@@ -61,7 +63,7 @@ public class NoBadAlchsPlugin extends Plugin {
     @Override
     protected void startUp()
     {
-        resetWhitelist();
+        resetLists();
     }
 
     @Override
@@ -69,6 +71,8 @@ public class NoBadAlchsPlugin extends Plugin {
         showHiddenItems();
         Whitelist.clear();
         Whitelist = null;
+        Blacklist.clear();
+        Blacklist = null;
     }
 
     @Subscribe
@@ -76,7 +80,7 @@ public class NoBadAlchsPlugin extends Plugin {
         if (!event.getGroup().equals(NoBadAlchsConfig.GROUP_NAME)) {
             return;
         }
-        resetWhitelist();
+        resetLists();
         if (isAlching()) {
             resetHiddenItems();
         }
@@ -201,13 +205,15 @@ public class NoBadAlchsPlugin extends Plugin {
             runeCost = 0;
         }
         for (Widget inventoryItem : inventoryItems) {
-            if (excludedItems.contains(inventoryItem.getItemId())) {
+
+            int itemId = inventoryItem.getItemId();
+            if (excludedItems.contains(itemId)) {
                 continue;
             }
             if (inventoryItem.isHidden()) {
                 continue;
             }
-            int itemPrice = itemManager.getItemComposition(inventoryItem.getItemId()).getPrice();
+            int itemPrice = itemManager.getItemComposition(itemId).getPrice();
             int alchPrice = (alchType == AlchType.Low || alchType == AlchType.RingLow) ? (int) (itemPrice * 0.4) : (int) (itemPrice * 0.6);
             int geValue = (int) (itemManager.getItemPrice(inventoryItem.getItemId()) * 0.98); // Account for GE tax
             int minAlchPrice = (int) (geValue * minAlchPriceRatio + alchPriceMargin + runeCost);
@@ -225,6 +231,9 @@ public class NoBadAlchsPlugin extends Plugin {
             }
             if(Whitelist.contains(name)){
                 shouldHide = false;
+            }
+            if(Blacklist.contains(name)){
+                shouldHide = true;
             }
             if (shouldHide) {
                 inventoryItem.setHidden(true);
@@ -249,8 +258,9 @@ public class NoBadAlchsPlugin extends Plugin {
             inventoryItem.setHidden(false);
         }
     }
-    private void resetWhitelist(){
+    private void resetLists(){
         Whitelist = Text.fromCSV(config.getWhitelistedItems().toLowerCase());
+        Blacklist = Text.fromCSV(config.getBlacklistedItems().toLowerCase());
     }
     private void resetHiddenItems() {
         queueSingleTask(TaskName.ResetHiddenItems, this::_resetHiddenItemsTask);

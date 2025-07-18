@@ -64,10 +64,20 @@ public interface NoBadAlchsConfig extends Config {
     @ConfigItem(
             keyName = "whitelistedItems",
             name = "Whitelisted items",
-            description = "Any items you still want to alch, put them here. Format: item1, item2, item3",
+            description = "Put hidden items here you WANT to alch.",
             position = 6
     )
     default String getWhitelistedItems()
+    {
+        return "";
+    }
+    @ConfigItem(
+            keyName = "blacklistedItems",
+            name = "Blacklisted items",
+            description = "Put visible items here you DON'T WANT to alch. Takes priority over whitelist if conflicted.",
+            position = 7
+    )
+    default String getBlacklistedItems()
     {
         return "";
     }
