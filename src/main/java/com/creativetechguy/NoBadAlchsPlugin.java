@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
 @PluginDescriptor(
@@ -50,6 +51,8 @@ public class NoBadAlchsPlugin extends Plugin {
             ItemID.EMERALD_6896,
             ItemID.RUNE_LONGSWORD_6897
     );
+    private List<String> allowList = new CopyOnWriteArrayList<>();
+    private List<String> denyList = new CopyOnWriteArrayList<>();
 
     @Provides
     NoBadAlchsConfig provideConfig(ConfigManager configManager) {
@@ -57,8 +60,18 @@ public class NoBadAlchsPlugin extends Plugin {
     }
 
     @Override
+    protected void startUp()
+    {
+        loadLists();
+    }
+
+    @Override
     protected void shutDown() throws Exception {
         showHiddenItems();
+        allowList.clear();
+        allowList = null;
+        denyList.clear();
+        denyList = null;
     }
 
     @Subscribe
@@ -66,6 +79,7 @@ public class NoBadAlchsPlugin extends Plugin {
         if (!event.getGroup().equals(NoBadAlchsConfig.GROUP_NAME)) {
             return;
         }
+        loadLists();
         if (isAlching()) {
             resetHiddenItems();
         }
@@ -190,17 +204,27 @@ public class NoBadAlchsPlugin extends Plugin {
             runeCost = 0;
         }
         for (Widget inventoryItem : inventoryItems) {
-            if (excludedItems.contains(inventoryItem.getItemId())) {
+            int itemId = inventoryItem.getItemId();
+            String name = Text.removeTags(itemManager.getItemComposition(itemId).getName()).toLowerCase();
+            if (excludedItems.contains(itemId)) {
                 continue;
             }
             if (inventoryItem.isHidden()) {
                 continue;
             }
-            int itemPrice = itemManager.getItemComposition(inventoryItem.getItemId()).getPrice();
+            if (denyList.contains(name)) {
+                inventoryItem.setHidden(true);
+                hiddenItems.add(inventoryItem);
+                continue;
+            }
+            if (allowList.contains(name)) {
+                continue;
+            }
+            int itemPrice = itemManager.getItemComposition(itemId).getPrice();
             int alchPrice = (alchType == AlchType.Low || alchType == AlchType.RingLow) ? (int) (itemPrice * 0.4) : (int) (itemPrice * 0.6);
-            int geValue = (int) (itemManager.getItemPrice(inventoryItem.getItemId()) * 0.98); // Account for GE tax
+            int geValue = (int) (itemManager.getItemPrice(itemId) * 0.98); // Account for GE tax
             int minAlchPrice = (int) (geValue * minAlchPriceRatio + alchPriceMargin + runeCost);
-            boolean untradeable = !(itemManager.getItemComposition(inventoryItem.getItemId()).isTradeable());
+            boolean untradeable = !(itemManager.getItemComposition(itemId).isTradeable());
             boolean shouldHide = false;
             if (untradeable && config.hideUntradeables()) {
                 shouldHide = true;
@@ -234,7 +258,10 @@ public class NoBadAlchsPlugin extends Plugin {
             inventoryItem.setHidden(false);
         }
     }
-
+    private void loadLists(){
+        allowList = Text.fromCSV(config.getAllowedItems().toLowerCase());
+        denyList = Text.fromCSV(config.getDeniedItems().toLowerCase());
+    }
     private void resetHiddenItems() {
         queueSingleTask(TaskName.ResetHiddenItems, this::_resetHiddenItemsTask);
     }

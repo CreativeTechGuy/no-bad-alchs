@@ -17,7 +17,11 @@ Prevents casting alchemy on items which give less than the GE value based on con
 * Min Alch Value - A number (default 0) causing items with alch values lower than this to be always hidden.
 * Include Rune Cost - Automatically adds the cost of 1 nature and 5 fire runes to the GE value.
 * Hide Untradeables - Items without GE value will be always hidden.
-
+* Allowed Items - Write an item's name in this list, and it will always be shown when alching.
+	* Example: Digsite pendant(1), ring of dueling(1), rune arrow
+* Denied Items - Write an item's name in this list, and it will never be shown. This overrides the Allowed list, so an item in both will be hidden.
+	* Example: Dragon med helm, rune scimitar, lava battlestaff
+	
 Note: GE value automatically incorporates the GE tax deduction.
 
 ## Version History
