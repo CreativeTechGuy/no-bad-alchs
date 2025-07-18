@@ -205,18 +205,13 @@ public class NoBadAlchsPlugin extends Plugin {
         }
         for (Widget inventoryItem : inventoryItems) {
             int itemId = inventoryItem.getItemId();
+            String name = Text.removeTags(itemManager.getItemComposition(itemId).getName()).toLowerCase();
             if (excludedItems.contains(itemId)) {
                 continue;
             }
             if (inventoryItem.isHidden()) {
                 continue;
             }
-            int itemPrice = itemManager.getItemComposition(itemId).getPrice();
-            int alchPrice = (alchType == AlchType.Low || alchType == AlchType.RingLow) ? (int) (itemPrice * 0.4) : (int) (itemPrice * 0.6);
-            int geValue = (int) (itemManager.getItemPrice(itemId) * 0.98); // Account for GE tax
-            int minAlchPrice = (int) (geValue * minAlchPriceRatio + alchPriceMargin + runeCost);
-            boolean untradeable = !(itemManager.getItemComposition(itemId).isTradeable());
-            String name = Text.removeTags(itemManager.getItemComposition(itemId).getName()).toLowerCase();
             if (denyList.contains(name)) {
                 inventoryItem.setHidden(true);
                 hiddenItems.add(inventoryItem);
@@ -225,6 +220,11 @@ public class NoBadAlchsPlugin extends Plugin {
             if (allowList.contains(name)) {
                 continue;
             }
+            int itemPrice = itemManager.getItemComposition(itemId).getPrice();
+            int alchPrice = (alchType == AlchType.Low || alchType == AlchType.RingLow) ? (int) (itemPrice * 0.4) : (int) (itemPrice * 0.6);
+            int geValue = (int) (itemManager.getItemPrice(itemId) * 0.98); // Account for GE tax
+            int minAlchPrice = (int) (geValue * minAlchPriceRatio + alchPriceMargin + runeCost);
+            boolean untradeable = !(itemManager.getItemComposition(itemId).isTradeable());
             boolean shouldHide = false;
             if (untradeable && config.hideUntradeables()) {
                 shouldHide = true;
