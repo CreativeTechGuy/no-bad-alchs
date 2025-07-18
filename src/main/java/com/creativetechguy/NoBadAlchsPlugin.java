@@ -12,7 +12,6 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
-import net.runelite.client.game.ItemVariationMapping;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.skillcalculator.skills.MagicAction;
@@ -52,8 +51,8 @@ public class NoBadAlchsPlugin extends Plugin {
             ItemID.EMERALD_6896,
             ItemID.RUNE_LONGSWORD_6897
     );
-    private List<String> Whitelist = new CopyOnWriteArrayList<>();
-    private List<String> Blacklist = new CopyOnWriteArrayList<>();
+    private List<String> allowList = new CopyOnWriteArrayList<>();
+    private List<String> denyList = new CopyOnWriteArrayList<>();
 
     @Provides
     NoBadAlchsConfig provideConfig(ConfigManager configManager) {
@@ -63,16 +62,16 @@ public class NoBadAlchsPlugin extends Plugin {
     @Override
     protected void startUp()
     {
-        resetLists();
+        loadLists();
     }
 
     @Override
     protected void shutDown() throws Exception {
         showHiddenItems();
-        Whitelist.clear();
-        Whitelist = null;
-        Blacklist.clear();
-        Blacklist = null;
+        allowList.clear();
+        allowList = null;
+        denyList.clear();
+        denyList = null;
     }
 
     @Subscribe
@@ -80,7 +79,7 @@ public class NoBadAlchsPlugin extends Plugin {
         if (!event.getGroup().equals(NoBadAlchsConfig.GROUP_NAME)) {
             return;
         }
-        resetLists();
+        loadLists();
         if (isAlching()) {
             resetHiddenItems();
         }
@@ -205,7 +204,6 @@ public class NoBadAlchsPlugin extends Plugin {
             runeCost = 0;
         }
         for (Widget inventoryItem : inventoryItems) {
-
             int itemId = inventoryItem.getItemId();
             if (excludedItems.contains(itemId)) {
                 continue;
@@ -215,10 +213,18 @@ public class NoBadAlchsPlugin extends Plugin {
             }
             int itemPrice = itemManager.getItemComposition(itemId).getPrice();
             int alchPrice = (alchType == AlchType.Low || alchType == AlchType.RingLow) ? (int) (itemPrice * 0.4) : (int) (itemPrice * 0.6);
-            int geValue = (int) (itemManager.getItemPrice(inventoryItem.getItemId()) * 0.98); // Account for GE tax
+            int geValue = (int) (itemManager.getItemPrice(itemId) * 0.98); // Account for GE tax
             int minAlchPrice = (int) (geValue * minAlchPriceRatio + alchPriceMargin + runeCost);
-            boolean untradeable = !(itemManager.getItemComposition(inventoryItem.getItemId()).isTradeable());
-            String name = Text.removeTags(itemManager.getItemComposition(inventoryItem.getItemId()).getName()).toLowerCase();
+            boolean untradeable = !(itemManager.getItemComposition(itemId).isTradeable());
+            String name = Text.removeTags(itemManager.getItemComposition(itemId).getName()).toLowerCase();
+            if (denyList.contains(name)) {
+                inventoryItem.setHidden(true);
+                hiddenItems.add(inventoryItem);
+                continue;
+            }
+            if (allowList.contains(name)) {
+                continue;
+            }
             boolean shouldHide = false;
             if (untradeable && config.hideUntradeables()) {
                 shouldHide = true;
@@ -227,12 +233,6 @@ public class NoBadAlchsPlugin extends Plugin {
                 shouldHide = true;
             }
             if (alchPrice < config.minAlchValue()) {
-                shouldHide = true;
-            }
-            if(Whitelist.contains(name)){
-                shouldHide = false;
-            }
-            if(Blacklist.contains(name)){
                 shouldHide = true;
             }
             if (shouldHide) {
@@ -258,9 +258,9 @@ public class NoBadAlchsPlugin extends Plugin {
             inventoryItem.setHidden(false);
         }
     }
-    private void resetLists(){
-        Whitelist = Text.fromCSV(config.getWhitelistedItems().toLowerCase());
-        Blacklist = Text.fromCSV(config.getBlacklistedItems().toLowerCase());
+    private void loadLists(){
+        allowList = Text.fromCSV(config.getAllowedItems().toLowerCase());
+        denyList = Text.fromCSV(config.getDeniedItems().toLowerCase());
     }
     private void resetHiddenItems() {
         queueSingleTask(TaskName.ResetHiddenItems, this::_resetHiddenItemsTask);

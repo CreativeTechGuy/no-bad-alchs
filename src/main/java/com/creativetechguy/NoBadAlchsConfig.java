@@ -62,22 +62,22 @@ public interface NoBadAlchsConfig extends Config {
     }
 
     @ConfigItem(
-            keyName = "whitelistedItems",
-            name = "Whitelisted items",
-            description = "Put hidden items here you WANT to alch.",
+            keyName = "allowedItems",
+            name = "Allowed items",
+            description = "Items in this list will always be shown.",
             position = 6
     )
-    default String getWhitelistedItems()
+    default String getAllowedItems()
     {
         return "";
     }
     @ConfigItem(
-            keyName = "blacklistedItems",
-            name = "Blacklisted items",
-            description = "Put visible items here you DON'T WANT to alch. Takes priority over whitelist if conflicted.",
+            keyName = "deniedItems",
+            name = "Denied items",
+            description = "Items in this list will always be hidden.",
             position = 7
     )
-    default String getBlacklistedItems()
+    default String getDeniedItems()
     {
         return "";
     }
