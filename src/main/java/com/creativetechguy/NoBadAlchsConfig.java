@@ -60,4 +60,26 @@ public interface NoBadAlchsConfig extends Config {
     default boolean hideUntradeables() {
         return true;
     }
+
+    @ConfigItem(
+            keyName = "allowedItems",
+            name = "Allowed items",
+            description = "Items in this list will always be shown.",
+            position = 6
+    )
+    default String getAllowedItems()
+    {
+        return "";
+    }
+    @ConfigItem(
+            keyName = "deniedItems",
+            name = "Denied items",
+            description = "Items in this list will always be hidden.",
+            position = 7
+    )
+    default String getDeniedItems()
+    {
+        return "";
+    }
+
 }
