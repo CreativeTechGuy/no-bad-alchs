@@ -16,17 +16,19 @@ Prevents casting alchemy on items which give less than the GE value based on con
     * Example: -250 means the alch value can be at most -250 coins less than the GE value
 * Min Alch Value - A number (default 0) causing items with alch values lower than this to be always hidden.
 * Include Rune Cost - Automatically adds the cost of 1 nature and 5 fire runes to the GE value.
-* Hide Untradeables - Items without GE value will be always hidden.
+* Hide Untradeables - Items that RuneLite marks as untradeable will be hidden.
 * Allowed Items - Write an item's name in this list, and it will always be shown when alching.
-	* Example: Digsite pendant(1), ring of dueling(1), rune arrow
-* Denied Items - Write an item's name in this list, and it will never be shown. This overrides the Allowed list, so an item in both will be hidden.
-	* Example: Dragon med helm, rune scimitar, lava battlestaff
-	
+    * Example: Digsite pendant(1), ring of dueling(1), rune arrow
+* Denied Items - Write an item's name in this list, and it will never be shown. This overrides the Allowed list, so an
+  item in both will be hidden.
+    * Example: Dragon med helm, rune scimitar, lava battlestaff
+
 Note: GE value automatically incorporates the GE tax deduction.
 
 ## Version History
 
-* 1.2.0 - Add allowlist/denylist config, fixes untradable detection, updates GE tax percentage
+* 1.2.1 - Fix incorrectly marking noted items as untradeable
+* 1.2.0 - Add allowlist/denylist config, fixes untradeable detection, updates GE tax percentage
 * 1.1.4 - Fix keyboard support for swapping to inventory
 * 1.1.3 - Check names of menu items loosely to increase compatibility with other plugins which change menu item names
 * 1.1.2 - Exclude Mage Training Arena items
@@ -39,5 +41,6 @@ Note: GE value automatically incorporates the GE tax deduction.
 
 ## Known issues
 
-* Doesn't work correctly if [Normal Ancient Teleports](https://runelite.net/plugin-hub/show/normal-ancient-teleports) plugin is enabled.
-  * Disabling the `Normal Ancient Teleports` plugin fixes the `No Bad Alchs` behaviour.
+* Doesn't work correctly if [Normal Ancient Teleports](https://runelite.net/plugin-hub/show/normal-ancient-teleports)
+  plugin is enabled.
+    * Disabling the `Normal Ancient Teleports` plugin fixes the `No Bad Alchs` behaviour.

@@ -54,7 +54,7 @@ public interface NoBadAlchsConfig extends Config {
     @ConfigItem(
             keyName = "hideUntradeables",
             name = "Hide Untradeables",
-            description = "Items without GE value will be always hidden.",
+            description = "Items that RuneLite marks as untradeable will be hidden.",
             position = 5
     )
     default boolean hideUntradeables() {
@@ -67,18 +67,17 @@ public interface NoBadAlchsConfig extends Config {
             description = "Items in this list will always be shown.",
             position = 6
     )
-    default String getAllowedItems()
-    {
+    default String getAllowedItems() {
         return "";
     }
+
     @ConfigItem(
             keyName = "deniedItems",
             name = "Denied items",
             description = "Items in this list will always be hidden.",
             position = 7
     )
-    default String getDeniedItems()
-    {
+    default String getDeniedItems() {
         return "";
     }
 

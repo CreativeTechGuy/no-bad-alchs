@@ -60,8 +60,7 @@ public class NoBadAlchsPlugin extends Plugin {
     }
 
     @Override
-    protected void startUp()
-    {
+    protected void startUp() {
         loadLists();
     }
 
@@ -205,7 +204,8 @@ public class NoBadAlchsPlugin extends Plugin {
         }
         for (Widget inventoryItem : inventoryItems) {
             int itemId = inventoryItem.getItemId();
-            String name = Text.removeTags(itemManager.getItemComposition(itemId).getName()).toLowerCase();
+            ItemComposition itemComposition = itemManager.getItemComposition(itemId);
+            String name = Text.removeTags(itemComposition.getName()).toLowerCase();
             if (excludedItems.contains(itemId)) {
                 continue;
             }
@@ -220,13 +220,15 @@ public class NoBadAlchsPlugin extends Plugin {
             if (allowList.contains(name)) {
                 continue;
             }
-            int itemPrice = itemManager.getItemComposition(itemId).getPrice();
+            int itemPrice = itemComposition.getPrice();
             int alchPrice = (alchType == AlchType.Low || alchType == AlchType.RingLow) ? (int) (itemPrice * 0.4) : (int) (itemPrice * 0.6);
             int geValue = (int) (itemManager.getItemPrice(itemId) * 0.98); // Account for GE tax
             int minAlchPrice = (int) (geValue * minAlchPriceRatio + alchPriceMargin + runeCost);
-            boolean untradeable = !(itemManager.getItemComposition(itemId).isTradeable());
+            // For some reason, noted items are tagged as untradeable, so check both versions
+            boolean hasNotedVersion = itemComposition.getLinkedNoteId() != -1;
+            boolean isTradeable = itemComposition.isTradeable() || (hasNotedVersion && itemManager.getItemComposition(itemComposition.getLinkedNoteId()).isTradeable());
             boolean shouldHide = false;
-            if (untradeable && config.hideUntradeables()) {
+            if (!isTradeable && config.hideUntradeables()) {
                 shouldHide = true;
             }
             if (alchPrice <= minAlchPrice) {
@@ -258,10 +260,12 @@ public class NoBadAlchsPlugin extends Plugin {
             inventoryItem.setHidden(false);
         }
     }
-    private void loadLists(){
+
+    private void loadLists() {
         allowList = Text.fromCSV(config.getAllowedItems().toLowerCase());
         denyList = Text.fromCSV(config.getDeniedItems().toLowerCase());
     }
+
     private void resetHiddenItems() {
         queueSingleTask(TaskName.ResetHiddenItems, this::_resetHiddenItemsTask);
     }
