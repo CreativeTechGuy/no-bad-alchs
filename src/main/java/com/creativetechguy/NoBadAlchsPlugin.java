@@ -43,6 +43,7 @@ public class NoBadAlchsPlugin extends Plugin {
     AlchType alchType = AlchType.None;
     HashSet<Widget> hiddenItems = new HashSet<>();
     HashSet<TaskName> tasksQueued = new HashSet<>();
+    boolean wasDragging = false;
     List<Integer> excludedItems = Arrays.asList(
             NullItemID.NULL_6512,
             ItemID.LEATHER_BOOTS_6893,
@@ -84,7 +85,15 @@ public class NoBadAlchsPlugin extends Plugin {
         }
     }
 
-    @Subscribe()
+    @Subscribe
+    private void onPostClientTick(PostClientTick postClientTick) {
+        if (client.getDraggedWidget() == null && wasDragging) {
+            wasDragging = false;
+            resetHiddenItems();
+        }
+    }
+
+    @Subscribe
     public void onMenuOptionClicked(MenuOptionClicked event) {
         String menuTarget = Text.removeTags(event.getMenuTarget());
         String menuOption = Text.removeTags(event.getMenuOption());
@@ -154,6 +163,11 @@ public class NoBadAlchsPlugin extends Plugin {
             }
             resetHiddenItems();
         }
+    }
+
+    @Subscribe
+    private void onDraggingWidgetChanged(DraggingWidgetChanged draggingWidgetChanged) {
+        this.wasDragging = true;
     }
 
     @Subscribe

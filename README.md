@@ -27,6 +27,7 @@ Note: GE value automatically incorporates the GE tax deduction.
 
 ## Version History
 
+* 1.2.2 - Fix dragging an items incorrectly making all items visible
 * 1.2.1 - Fix incorrectly marking noted items as untradeable
 * 1.2.0 - Add allowlist/denylist config, fixes untradeable detection, updates GE tax percentage
 * 1.1.4 - Fix keyboard support for swapping to inventory
