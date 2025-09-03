@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
 @PluginDescriptor(
@@ -52,8 +51,8 @@ public class NoBadAlchsPlugin extends Plugin {
             ItemID.EMERALD_6896,
             ItemID.RUNE_LONGSWORD_6897
     );
-    private List<String> allowList = new CopyOnWriteArrayList<>();
-    private List<String> denyList = new CopyOnWriteArrayList<>();
+    private List<String> allowList;
+    private List<String> denyList;
 
     @Provides
     NoBadAlchsConfig provideConfig(ConfigManager configManager) {
@@ -68,9 +67,7 @@ public class NoBadAlchsPlugin extends Plugin {
     @Override
     protected void shutDown() throws Exception {
         showHiddenItems();
-        allowList.clear();
         allowList = null;
-        denyList.clear();
         denyList = null;
     }
 
@@ -167,7 +164,9 @@ public class NoBadAlchsPlugin extends Plugin {
 
     @Subscribe
     private void onDraggingWidgetChanged(DraggingWidgetChanged draggingWidgetChanged) {
-        this.wasDragging = true;
+        if (isAlching()) {
+            this.wasDragging = true;
+        }
     }
 
     @Subscribe
