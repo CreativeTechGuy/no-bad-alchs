@@ -2,10 +2,12 @@ package com.creativetechguy;
 
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.*;
+import net.runelite.api.Client;
+import net.runelite.api.ItemComposition;
+import net.runelite.api.ItemContainer;
+import net.runelite.api.ScriptID;
 import net.runelite.api.events.*;
-import net.runelite.api.widgets.ComponentID;
-import net.runelite.api.widgets.InterfaceID;
+import net.runelite.api.gameval.*;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -22,6 +24,8 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.IntStream;
 
 @Slf4j
 @PluginDescriptor(
@@ -44,12 +48,12 @@ public class NoBadAlchsPlugin extends Plugin {
     HashSet<TaskName> tasksQueued = new HashSet<>();
     boolean wasDragging = false;
     List<Integer> excludedItems = Arrays.asList(
-            NullItemID.NULL_6512,
-            ItemID.LEATHER_BOOTS_6893,
-            ItemID.ADAMANT_KITESHIELD_6894,
-            ItemID.ADAMANT_MED_HELM_6895,
-            ItemID.EMERALD_6896,
-            ItemID.RUNE_LONGSWORD_6897
+            ItemID.BLANKOBJECT,
+            ItemID.MAGICTRAINING_LEATHER_BOOTS,
+            ItemID.MAGICTRAINING_ADAMANT_KITESHIELD,
+            ItemID.MAGICTRAINING_ADAMANT_MED_HELM,
+            ItemID.MAGICTRAINING_EMERALD,
+            ItemID.MAGICTRAINING_RUNE_LONGSWORD
     );
     private List<String> allowList;
     private List<String> denyList;
@@ -101,7 +105,7 @@ public class NoBadAlchsPlugin extends Plugin {
                 "->")) {
             alchType = AlchType.High;
         } else if (menuOption.contains("Magic") && isUsingExplorerRingAlch()) {
-            if (client.getVarbitValue(Varbits.EXPLORER_RING_ALCHTYPE) == 0) {
+            if (client.getVarbitValue(VarbitID.LUMBRIDGE_ALCHEMY_HIGH) == 0) {
                 alchType = AlchType.RingLow;
             } else {
                 alchType = AlchType.RingHigh;
@@ -128,8 +132,8 @@ public class NoBadAlchsPlugin extends Plugin {
 
     @Subscribe
     private void onWidgetLoaded(WidgetLoaded widget) {
-        if (widget.getGroupId() == InterfaceID.EXPLORERS_RING) {
-            if (client.getVarbitValue(Varbits.EXPLORER_RING_ALCHTYPE) == 0) {
+        if (widget.getGroupId() == InterfaceID.LUMBRIDGE_ALCHEMY) {
+            if (client.getVarbitValue(VarbitID.LUMBRIDGE_ALCHEMY_HIGH) == 0) {
                 alchType = AlchType.RingLow;
             } else {
                 alchType = AlchType.RingHigh;
@@ -140,8 +144,8 @@ public class NoBadAlchsPlugin extends Plugin {
 
     @Subscribe
     private void onVarClientIntChanged(VarClientIntChanged varClientIntChanged) {
-        if (varClientIntChanged.getIndex() == VarClientInt.INVENTORY_TAB && isUsingExplorerRingAlch()) {
-            int tabId = client.getVarcIntValue(VarClientInt.INVENTORY_TAB);
+        if (varClientIntChanged.getIndex() == VarClientID.TOPLEVEL_PANEL && isUsingExplorerRingAlch()) {
+            int tabId = client.getVarcIntValue(VarClientID.TOPLEVEL_PANEL);
             if (tabId == 3) { // Inventory
                 showHiddenItems();
             } else if (tabId == 6) { // Magic Spellbook (This is where the Explorer Ring Alch takes place)
@@ -152,7 +156,7 @@ public class NoBadAlchsPlugin extends Plugin {
 
     @Subscribe
     private void onVarbitChanged(VarbitChanged varbitChanged) {
-        if (varbitChanged.getVarbitId() == Varbits.EXPLORER_RING_ALCHTYPE && isAlching()) {
+        if (varbitChanged.getVarbitId() == VarbitID.LUMBRIDGE_ALCHEMY_HIGH && isAlching()) {
             if (varbitChanged.getValue() == 0) {
                 alchType = AlchType.RingLow;
             } else {
@@ -163,7 +167,7 @@ public class NoBadAlchsPlugin extends Plugin {
     }
 
     @Subscribe
-    private void onDraggingWidgetChanged(DraggingWidgetChanged draggingWidgetChanged) {
+    private void onWidgetDrag(WidgetDrag widgetDrag) {
         if (isAlching()) {
             this.wasDragging = true;
         }
@@ -171,7 +175,7 @@ public class NoBadAlchsPlugin extends Plugin {
 
     @Subscribe
     private void onWidgetClosed(WidgetClosed widget) {
-        if (widget.getGroupId() == InterfaceID.EXPLORERS_RING) {
+        if (widget.getGroupId() == InterfaceID.LUMBRIDGE_ALCHEMY) {
             alchType = AlchType.None;
             showHiddenItems();
         }
@@ -180,7 +184,7 @@ public class NoBadAlchsPlugin extends Plugin {
     @Subscribe
     private void onItemContainerChanged(ItemContainerChanged event) {
         ItemContainer container = event.getItemContainer();
-        if (container.getId() == InventoryID.INVENTORY.getId() && isUsingExplorerRingAlch()) {
+        if (container.getId() == InventoryID.INV && isUsingExplorerRingAlch()) {
             hideItems();
         }
     }
@@ -192,26 +196,27 @@ public class NoBadAlchsPlugin extends Plugin {
     private void _hideItemsTask() {
         Widget[] inventoryItems;
         if (isUsingExplorerRingAlch()) {
-            Widget alchInventory = client.getWidget(ComponentID.EXPLORERS_RING_INVENTORY);
+            Widget alchInventory = client.getWidget(InterfaceID.LumbridgeAlchemy.ITEMS);
             if (alchInventory == null) {
                 return;
             }
             inventoryItems = alchInventory.getChildren();
         } else {
-            Widget inventory = client.getWidget(ComponentID.INVENTORY_CONTAINER);
+            Widget inventory = client.getWidget(InterfaceID.Inventory.ITEMS);
             if (inventory == null) {
                 return;
             }
             inventoryItems = inventory.getChildren();
         }
+        assert inventoryItems != null;
         if (inventoryItems.length == 0) {
             return;
         }
 
         double minAlchPriceRatio = config.minAlchRatio();
         double alchPriceMargin = config.alchValueMargin();
-        double runeCost = config.includeRuneCost() ? itemManager.getItemPrice(ItemID.FIRE_RUNE) * 5 + itemManager.getItemPrice(
-                ItemID.NATURE_RUNE) : 0;
+        double runeCost = config.includeRuneCost() ? itemManager.getItemPrice(ItemID.FIRERUNE) * 5 + itemManager.getItemPrice(
+                ItemID.NATURERUNE) : 0;
         if (isUsingExplorerRingAlch() || isAlchCastPoweredByExplorerRing()) {
             runeCost = 0;
         }
@@ -300,24 +305,104 @@ public class NoBadAlchsPlugin extends Plugin {
     }
 
     private boolean isAlchCastPoweredByExplorerRing() {
-        // We are naively assuming that if there's an explorer ring in the inventory, it still has charges. I don't want to track charges for this edge case.
-        ItemContainer inventory = client.getItemContainer(InventoryID.INVENTORY);
-        if (containsExplorerRing(inventory)) {
-            return true;
+        ItemContainer inventory = client.getItemContainer(InventoryID.INV);
+        ItemContainer equipment = client.getItemContainer(InventoryID.WORN);
+        // If there are alch runes in the inventory, those will be used first
+        if (containsAlchRunes(inventory, equipment)) {
+            return false;
         }
-        ItemContainer equipment = client.getItemContainer(InventoryID.EQUIPMENT);
-        if (containsExplorerRing(equipment)) {
-            return true;
+        if (containsExplorerRing(inventory) || containsExplorerRing(equipment)) {
+            return client.getVarbitValue(VarbitID.LUMBRIDGE_FREE_ALCHS) < 30;
         }
         return false;
+    }
+
+    private boolean containsAlchRunes(@Nullable ItemContainer inventory, @Nullable ItemContainer equipment) {
+        if (inventory == null) {
+            return false;
+        }
+        int fireRunes = 0;
+        int natureRunes = 0;
+
+        if (inventory.contains(ItemID.BH_RUNE_POUCH) || inventory.contains(ItemID.BH_RUNE_POUCH_TROUVER) || inventory.contains(ItemID.DIVINE_RUNE_POUCH) || inventory.contains(ItemID.DIVINE_RUNE_POUCH_TROUVER)) {
+            int[] runeAmounts = {
+                    VarbitID.RUNE_POUCH_QUANTITY_1, VarbitID.RUNE_POUCH_QUANTITY_2, VarbitID.RUNE_POUCH_QUANTITY_3, VarbitID.RUNE_POUCH_QUANTITY_4,
+                    VarbitID.RUNE_POUCH_QUANTITY_5, VarbitID.RUNE_POUCH_QUANTITY_6
+            };
+            int[] runeIndices = {
+                    VarbitID.RUNE_POUCH_TYPE_1, VarbitID.RUNE_POUCH_TYPE_2, VarbitID.RUNE_POUCH_TYPE_3, VarbitID.RUNE_POUCH_TYPE_4,
+                    VarbitID.RUNE_POUCH_TYPE_5, VarbitID.RUNE_POUCH_TYPE_6
+            };
+            int[] fireIds = {4, 18, 19, 20, 22};
+            int natureId = 10;
+            for (int i = 0; i < runeIndices.length; i++) {
+                int indexId = client.getVarbitValue(runeIndices[i]);
+                if (IntStream.of(fireIds).anyMatch(x -> x == indexId)) {
+                    fireRunes += client.getVarbitValue(runeAmounts[i]);
+                } else if (indexId == natureId) {
+                    natureRunes += client.getVarbitValue(runeAmounts[i]);
+                }
+            }
+        }
+        if (fireRunes <= 5) {
+            int[] fireRuneAlternatives = {
+                    ItemID.FIRERUNE,
+                    ItemID.LAVARUNE,
+                    ItemID.STEAMRUNE,
+                    ItemID.SMOKERUNE
+            };
+            for (int itemId : fireRuneAlternatives) {
+                if (inventory.contains(itemId)) {
+                    int quantity = Objects.requireNonNull(inventory.getItem(inventory.find(itemId))).getQuantity();
+                    fireRunes += quantity;
+                }
+            }
+        }
+        if (natureRunes <= 1) {
+            if (inventory.contains(ItemID.NATURERUNE)) {
+                int quantity = Objects.requireNonNull(inventory.getItem(inventory.find(ItemID.NATURERUNE))).getQuantity();
+                natureRunes += quantity;
+            }
+        }
+        if (fireRunes >= 5 && natureRunes >= 1) {
+            return true;
+        }
+        if (equipment == null) {
+            return false;
+        }
+        int[] fireStaffAlternatives = {
+                ItemID.STAFF_OF_FIRE,
+                ItemID.FIRE_BATTLESTAFF,
+                ItemID.MYSTIC_FIRE_STAFF,
+                ItemID.LAVA_BATTLESTAFF,
+                ItemID.LAVA_BATTLESTAFF_PRETTY,
+                ItemID.MYSTIC_LAVA_STAFF,
+                ItemID.MYSTIC_LAVA_STAFF_PRETTY,
+                ItemID.SMOKE_BATTLESTAFF,
+                ItemID.MYSTIC_SMOKE_BATTLESTAFF,
+                ItemID.STEAM_BATTLESTAFF,
+                ItemID.STEAM_BATTLESTAFF_PRETTY,
+                ItemID.MYSTIC_STEAM_BATTLESTAFF,
+                ItemID.MYSTIC_STEAM_BATTLESTAFF_PRETTY,
+                ItemID.TOME_OF_FIRE
+        };
+        for (int itemId : fireStaffAlternatives) {
+            if (equipment.contains(itemId)) {
+                fireRunes += 999;
+            }
+        }
+        if (equipment.contains(ItemID.NATURE_STAFF_CHARGED)) {
+            natureRunes += 999;
+        }
+        return fireRunes >= 5 && natureRunes >= 1;
     }
 
     private boolean containsExplorerRing(@Nullable ItemContainer container) {
         if (container == null) {
             return false;
         }
-        return container.contains(ItemID.EXPLORERS_RING_1) || container.contains(ItemID.EXPLORERS_RING_2) || container.contains(
-                ItemID.EXPLORERS_RING_3) || container.contains(ItemID.EXPLORERS_RING_4);
+        return container.contains(ItemID.LUMBRIDGE_RING_EASY) || container.contains(ItemID.LUMBRIDGE_RING_MEDIUM) || container.contains(
+                ItemID.LUMBRIDGE_RING_HARD) || container.contains(ItemID.LUMBRIDGE_RING_ELITE);
     }
 
     private boolean isAlching() {

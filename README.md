@@ -27,6 +27,7 @@ Note: GE value automatically incorporates the GE tax deduction.
 
 ## Version History
 
+* 1.3.0 - Better handle explorer ring, update for latest RuneLite
 * 1.2.3 - Fix inventory disappearing and plugin crashing
 * 1.2.2 - Fix dragging an items incorrectly making all items visible
 * 1.2.1 - Fix incorrectly marking noted items as untradeable
